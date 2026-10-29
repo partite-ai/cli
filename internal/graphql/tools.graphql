@@ -1,0 +1,387 @@
+# Operations for partite mcp, partite particle and partite workspace.
+
+# @genqlient(typename: "ToolsMcpConnection")
+fragment ToolsMcpConnection on McpConnection {
+  id
+  name
+  transport
+  httpTransport {
+    url
+    authFlow
+    headers {
+      name
+      value
+    }
+  }
+  createdAt
+  updatedAt
+}
+
+query ToolsListMcpConnections($first: Int!, $after: String, $query: String) {
+  mcpConnections(first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      # @genqlient(flatten: true)
+      node {
+        ...ToolsMcpConnection
+      }
+    }
+  }
+}
+
+query ToolsGetMcpConnection($id: McpConnectionID!) {
+  # @genqlient(flatten: true)
+  mcpConnection(id: $id) {
+    ...ToolsMcpConnection
+  }
+}
+
+mutation ToolsCreateMcpConnection(
+  $input: NewMcpConnection!
+) {
+  # @genqlient(flatten: true)
+  createMcpConnection(input: $input) {
+    ...ToolsMcpConnection
+  }
+}
+
+mutation ToolsUpdateMcpConnection(
+  $id: McpConnectionID!
+  $input: UpdateMcpConnection!
+) {
+  # @genqlient(flatten: true)
+  updateMcpConnection(mcpConnectionID: $id, input: $input) {
+    ...ToolsMcpConnection
+  }
+}
+
+# @genqlient(typename: "ToolsMcpTool")
+fragment ToolsMcpTool on McpConnectionTool {
+  name
+  title
+  description
+  inputSchema
+  outputSchema
+  annotations {
+    readOnly
+    destructive
+    idempotent
+    openWorld
+  }
+}
+
+# @genqlient(for: "McpConnectionSettingsOverrides.headers", omitempty: true)
+query ToolsMcpConnectionTools(
+  $id: McpConnectionID
+  $overrides: McpConnectionSettingsOverrides
+) {
+  # @genqlient(flatten: true)
+  mcpConnectionTools(mcpConnectionID: $id, overrides: $overrides) {
+    ...ToolsMcpTool
+  }
+}
+
+# @genqlient(for: "McpConnectionSettingsOverrides.headers", omitempty: true)
+mutation ToolsInvokeMcpConnectionTool(
+  $id: McpConnectionID
+  $overrides: McpConnectionSettingsOverrides
+  $toolName: String!
+  $arguments: JSON
+) {
+  invokeMcpConnectionTool(mcpConnectionID: $id, overrides: $overrides, toolName: $toolName, arguments: $arguments) {
+    isError
+    content
+    structuredContent
+  }
+}
+
+query ToolsTestMcpConnection(
+  $id: McpConnectionID
+  $targetUrl: String
+  $oauthClientCredentials: McpConnectionOauthClientCredentials
+  $oauthAuthorizationCodeCredentials: McpConnectionOauthAuthorizationCodeCredentials
+  $basicCredentials: McpConnectionBasicCredentials
+  $headerCredentials: McpConnectionHeaderCredentials
+  $noCredentials: Boolean
+) {
+  testMcpConnection(
+    mcpConnectionID: $id
+    targetUrl: $targetUrl
+    oauthClientCredentials: $oauthClientCredentials
+    oauthAuthorizationCodeCredentials: $oauthAuthorizationCodeCredentials
+    basicCredentials: $basicCredentials
+    headerCredentials: $headerCredentials
+    noCredentials: $noCredentials
+  ) {
+    completed
+    authenticated
+    message
+  }
+}
+
+mutation ToolsInitiateOAuthExchange(
+  $targetUrl: String!
+  $id: McpConnectionID
+  $clientID: String
+  $clientSecret: String
+  $scopes: [String!]
+) {
+  initiateOAuthExchange(
+    targetUrl: $targetUrl
+    mcpConnectionID: $id
+    clientID: $clientID
+    clientSecret: $clientSecret
+    scopes: $scopes
+  ) {
+    id
+    redirectUrl
+  }
+}
+
+query ToolsOAuthExchangeResult($id: ID!) {
+  oauthExchangeResult(id: $id) {
+    completed
+    authenticated
+    message
+  }
+}
+
+query ToolsMcpConnectionSubscriptions($id: McpConnectionID!) {
+  mcpConnection(id: $id) {
+    id
+    name
+    transport
+    tunnelTransport {
+      # @genqlient(typename: "ToolsMcpSubscription")
+      subscriptions {
+        id
+        name
+        criteria {
+          name
+          value
+        }
+        # @genqlient(flatten: true)
+        tunnelKeys {
+          ...McpConnectionTunnelKeyDetails
+        }
+        relays {
+          attachedAt
+          remoteAddress
+          forwardedFor
+          tunnelKeyLabel
+          clientName
+          clientVersion
+        }
+        createdAt
+        updatedAt
+      }
+    }
+  }
+}
+
+# @genqlient(typename: "ToolsInstalledParticle")
+fragment ToolsInstalledParticle on InstalledParticle {
+  id
+  name
+  activeArtifact {
+    id
+    name
+    version
+  }
+  credentials {
+    name
+    method
+  }
+  kvWorkspace {
+    id
+    name
+  }
+  mounts {
+    mountName
+    workspace {
+      id
+      name
+    }
+  }
+  createdAt
+  updatedAt
+}
+
+query ToolsListInstalledParticles($first: Int!, $after: String, $query: String) {
+  installedParticles(first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      # @genqlient(flatten: true)
+      node {
+        ...ToolsInstalledParticle
+      }
+    }
+  }
+}
+
+query ToolsGetInstalledParticle($id: InstalledParticleID!) {
+  # @genqlient(flatten: true)
+  installedParticle(id: $id) {
+    ...ToolsInstalledParticle
+  }
+}
+
+# The particle commands send these two with their own input type, which can
+# carry oauth2ExchangeId.
+mutation ToolsCreateInstalledParticle($input: CreateInstalledParticleInput!) {
+  # @genqlient(flatten: true)
+  createInstalledParticle(input: $input) {
+    ...ToolsInstalledParticle
+  }
+}
+
+mutation ToolsUpdateInstalledParticle($input: UpdateInstalledParticleInput!) {
+  # @genqlient(flatten: true)
+  updateInstalledParticle(input: $input) {
+    ...ToolsInstalledParticle
+  }
+}
+
+query ToolsInstalledParticleTools($id: InstalledParticleID!) {
+  installedParticle(id: $id) {
+    activeArtifact {
+      tools {
+        name
+        description
+        inputSchema
+      }
+    }
+  }
+}
+
+mutation ToolsInvokeInstalledParticleTool($id: InstalledParticleID!, $toolName: String!, $arguments: JSON) {
+  invokeInstalledParticleTool(installedParticleID: $id, toolName: $toolName, arguments: $arguments) {
+    isError
+    output
+    message
+  }
+}
+
+query ToolsPingInstalledParticle($id: InstalledParticleID!) {
+  pingInstalledParticle(installedParticleID: $id) {
+    status
+    message
+    details
+  }
+}
+
+# @genqlient(typename: "ToolsParticleOAuthExchangeDetails")
+fragment ToolsParticleOAuthExchangeDetails on ParticleOAuthExchange {
+  id
+  variant
+  status
+  authorizeUrl
+  userCode
+  verificationUri
+  expiresAt
+  errorMessage
+}
+
+mutation ToolsBeginParticleOAuthExchange($input: BeginParticleOAuthExchangeInput!) {
+  # @genqlient(flatten: true)
+  beginParticleOAuthExchange(input: $input) {
+    ...ToolsParticleOAuthExchangeDetails
+  }
+}
+
+# Only these fields: the server leaves variant unset here, which fails as null.
+query ToolsParticleOAuthExchange($id: String!) {
+  particleOAuthExchange(id: $id) {
+    id
+    status
+    errorMessage
+  }
+}
+
+query ToolsListWorkspaces($first: Int!, $after: String, $query: String) {
+  workspaces(first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      # @genqlient(flatten: true)
+      node {
+        ...WorkspaceDetails
+      }
+    }
+  }
+}
+
+query ToolsWorkspaceFiles(
+  $id: WorkspaceID!
+  $conversationID: String
+  $folder: String!
+  $first: Int!
+  $after: String
+) {
+  workspaceFiles(workspaceID: $id, conversationID: $conversationID, folder: $folder, first: $first, after: $after) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      node {
+        fileType
+        name
+        sizeBytes
+      }
+    }
+  }
+}
+
+query ToolsWorkspaceFileDownload($id: WorkspaceID!, $conversationID: String, $folder: String!, $name: String!) {
+  workspaceFileDownload(workspaceID: $id, conversationID: $conversationID, folder: $folder, name: $name) {
+    url
+    expiresAt
+    fileName
+    sizeBytes
+  }
+}
+
+mutation ToolsCreateWorkspaceFolder($id: WorkspaceID!, $conversationID: String, $folder: String!, $name: String!) {
+  createWorkspaceFolder(id: $id, conversationID: $conversationID, folder: $folder, name: $name) {
+    success
+    message
+  }
+}
+
+mutation ToolsDeleteWorkspaceFile($id: WorkspaceID!, $conversationID: String, $folder: String!, $name: String!) {
+  deleteWorkspaceFile(id: $id, conversationID: $conversationID, folder: $folder, name: $name) {
+    success
+    message
+  }
+}
+
+query ToolsWorkspaceKeyNames($id: WorkspaceID!, $conversationID: String, $prefix: String!) {
+  workspaceKeyNames(workspaceID: $id, conversationID: $conversationID, prefix: $prefix)
+}
+
+query ToolsWorkspaceKeyValue($id: WorkspaceID!, $conversationID: String, $key: String!) {
+  workspaceKeyValue(workspaceID: $id, conversationID: $conversationID, key: $key)
+}
+
+mutation ToolsSetWorkspaceKeyValue($id: WorkspaceID!, $conversationID: String, $key: String!, $value: String!) {
+  setWorkspaceKeyValue(id: $id, conversationID: $conversationID, key: $key, value: $value) {
+    success
+    message
+  }
+}
+
+mutation ToolsDeleteWorkspaceKeyValue($id: WorkspaceID!, $conversationID: String, $key: String!) {
+  deleteWorkspaceKeyValue(id: $id, conversationID: $conversationID, key: $key) {
+    success
+    message
+  }
+}

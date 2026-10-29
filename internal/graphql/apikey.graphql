@@ -1,0 +1,14 @@
+query ListApiKeys($first: Int!, $after: String, $query: String) {
+  apiKeys(first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      # @genqlient(flatten: true)
+      node {
+        ...ApiKeyDetails
+      }
+    }
+  }
+}

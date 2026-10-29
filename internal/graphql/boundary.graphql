@@ -1,0 +1,118 @@
+# Operations for the boundary command.
+
+fragment BoundaryView on Boundary {
+  id
+  name
+  description
+  reportOnly
+  rules {
+    name
+    action
+    when
+    effect
+    message
+    reportOnly
+  }
+  modifications {
+    name
+    action
+    when
+    setTags {
+      name
+      expression
+    }
+    setTracing
+    setArguments {
+      name
+      expression
+    }
+  }
+  warnings
+  meshes {
+    id
+    name
+  }
+  accessPoints {
+    id
+    name
+  }
+  createdAt
+  updatedAt
+}
+
+query BoundaryList($first: Int!, $after: String, $query: String) {
+  boundaries(first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      # @genqlient(flatten: true)
+      node {
+        ...BoundaryView
+      }
+    }
+  }
+}
+
+query BoundaryGet($id: BoundaryID!) {
+  # @genqlient(flatten: true)
+  boundary(id: $id) {
+    ...BoundaryView
+  }
+}
+
+mutation BoundaryCreate($input: NewBoundary!) {
+  # @genqlient(flatten: true)
+  createBoundary(input: $input) {
+    ...BoundaryView
+  }
+}
+
+mutation BoundaryUpdate($id: BoundaryID!, $input: UpdateBoundary!) {
+  # @genqlient(flatten: true)
+  updateBoundary(id: $id, input: $input) {
+    ...BoundaryView
+  }
+}
+
+mutation BoundaryDelete($ids: [BoundaryID!]!) {
+  deleteBoundaries(boundaryIDs: $ids) {
+    ids
+  }
+}
+
+query BoundaryDecisionGet($id: String!) {
+  boundaryDecision(decisionID: $id) {
+    id
+    action
+    outcome
+    reason
+    boundary
+    rule
+    message
+    tags
+    tracing
+    arguments
+    boundaries {
+      id
+      name
+    }
+    rules {
+      boundary
+      name
+      effect
+      applies
+      error
+      reportOnly
+    }
+    modifications {
+      boundary
+      name
+      applied
+      error
+    }
+    variables
+    decidedAt
+  }
+}

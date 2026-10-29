@@ -1,0 +1,129 @@
+# Operations for the access point command.
+
+fragment AccessPointClientView on AccessPointClient {
+  id
+  accessPointID
+  clientId
+  name
+  claims
+  redirectUris
+  secrets {
+    id
+    expiresAt
+    lastUsedAt
+    createdAt
+  }
+  createdAt
+  updatedAt
+}
+
+fragment AccessPointView on AccessPoint {
+  id
+  name
+  description
+  url
+  tags
+  authorizationServerUrl
+  clientTokenLifetimeSeconds
+  issuers {
+    issuer
+    audience
+    jwksUrl
+    jwks
+  }
+  clients {
+    ...AccessPointClientView
+  }
+  boundaries {
+    id
+    name
+  }
+  createdAt
+  updatedAt
+}
+
+query AccessPointList($first: Int!, $after: String, $query: String) {
+  accessPoints(first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      # @genqlient(flatten: true)
+      node {
+        ...AccessPointView
+      }
+    }
+  }
+}
+
+query AccessPointGet($id: AccessPointID!) {
+  # @genqlient(flatten: true)
+  accessPoint(id: $id) {
+    ...AccessPointView
+  }
+}
+
+mutation AccessPointCreate($input: NewAccessPoint!) {
+  # @genqlient(flatten: true)
+  createAccessPoint(input: $input) {
+    ...AccessPointView
+  }
+}
+
+mutation AccessPointUpdate($id: AccessPointID!, $input: UpdateAccessPoint!) {
+  # @genqlient(flatten: true)
+  updateAccessPoint(id: $id, input: $input) {
+    ...AccessPointView
+  }
+}
+
+mutation AccessPointDelete($ids: [AccessPointID!]!) {
+  deleteAccessPoints(accessPointIDs: $ids) {
+    ids
+  }
+}
+
+mutation AccessPointRotateKey($id: AccessPointID!, $dropPrevious: Boolean!) {
+  rotateAccessPointSigningKey(accessPointID: $id, dropPrevious: $dropPrevious) {
+    id
+  }
+}
+
+mutation AccessPointClientCreate($input: NewAccessPointClient!) {
+  # @genqlient(flatten: true)
+  createAccessPointClient(input: $input) {
+    ...AccessPointClientView
+  }
+}
+
+mutation AccessPointClientUpdate($id: AccessPointClientID!, $input: UpdateAccessPointClient!) {
+  # @genqlient(flatten: true)
+  updateAccessPointClient(id: $id, input: $input) {
+    ...AccessPointClientView
+  }
+}
+
+mutation AccessPointClientDelete($ids: [AccessPointClientID!]!) {
+  deleteAccessPointClients(accessPointClientIDs: $ids) {
+    ids
+  }
+}
+
+mutation AccessPointClientSecretCreate($clientId: AccessPointClientID!, $expiresAt: Time) {
+  createAccessPointClientSecret(accessPointClientID: $clientId, expiresAt: $expiresAt) {
+    clientSecret {
+      id
+      expiresAt
+      lastUsedAt
+      createdAt
+    }
+    secret
+  }
+}
+
+mutation AccessPointClientSecretDelete($ids: [AccessPointClientSecretID!]!) {
+  deleteAccessPointClientSecrets(accessPointClientSecretIDs: $ids) {
+    ids
+  }
+}

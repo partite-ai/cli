@@ -1,0 +1,4 @@
+/partite
+/dist/
+.generate.lock/
+internal/devmain/

@@ -1,0 +1,209 @@
+query ModelListProviders($first: Int!, $after: String, $query: String) {
+  modelProviders(first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      # @genqlient(flatten: true)
+      node {
+        ...ModelProviderDetails
+      }
+    }
+  }
+}
+
+fragment ModelListedModelFields on ListedModel {
+  id
+  displayName
+  supportedParameters
+  requiredParameters
+  bounds {
+    parameter
+    min
+    max
+    step
+  }
+  reasoningEfforts
+  thinkingTypes
+  thinkingDisplays
+  flagship
+  defaults {
+    temperature
+    topP
+    topK
+  }
+  embedding {
+    defaultDimensions
+  }
+}
+
+query ModelListProviderModels($credentials: ModelProviderCredentials!) {
+  # @genqlient(flatten: true)
+  modelProviderModels(credentials: $credentials) {
+    ...ModelListedModelFields
+  }
+}
+
+query ModelListProviderEmbeddingModels(
+  $credentials: ModelProviderCredentials!
+) {
+  # @genqlient(flatten: true)
+  modelProviderEmbeddingModels(credentials: $credentials) {
+    ...ModelListedModelFields
+  }
+}
+
+query ModelGetProviderCapabilities($providerType: ModelProviderType!) {
+  modelProviderCapabilities(providerType: $providerType) {
+    supportsModelProfiles
+    supportsEmbeddingProfiles
+    supportedParameters
+    requiredParameters
+    bounds {
+      parameter
+      min
+      max
+      step
+    }
+    reasoningEfforts
+    thinkingTypes
+    thinkingDisplays
+    supportedEmbeddingParameters
+  }
+}
+
+fragment ModelProfileFields on ModelProfile {
+  id
+  name
+  description
+  tags
+  provider {
+    id
+    name
+    providerType
+  }
+  configuration {
+    model
+    maxTokens
+    temperature
+    topP
+    topK
+    thinkingBudgetTokens
+    reasoningEffort
+    thinkingType
+    thinkingDisplay
+  }
+  createdAt
+  updatedAt
+}
+
+query ModelListProfileSummaries($first: Int!, $after: String, $query: String) {
+  modelProfileSummaries(first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      node {
+        id
+        name
+        description
+        providerName
+        providerType
+      }
+    }
+  }
+}
+
+query ModelGetProfile($id: ModelProfileID!) {
+  # @genqlient(flatten: true)
+  modelProfile(id: $id) {
+    ...ModelProfileFields
+  }
+}
+
+query ModelGetProfileByProviderAndName(
+  $providerId: ModelProviderID!
+  $name: String!
+) {
+  # @genqlient(flatten: true)
+  modelProfileByProviderAndName(providerID: $providerId, name: $name) {
+    ...ModelProfileFields
+  }
+}
+
+mutation ModelCreateProfile(
+  $providerId: ModelProviderID!
+  $input: NewModelProfile!
+) {
+  # @genqlient(flatten: true)
+  createModelProfile(providerID: $providerId, input: $input) {
+    ...ModelProfileFields
+  }
+}
+
+mutation ModelUpdateProfile($id: ModelProfileID!, $input: UpdateModelProfile!) {
+  # @genqlient(flatten: true)
+  updateModelProfile(id: $id, input: $input) {
+    ...ModelProfileFields
+  }
+}
+
+mutation ModelProbeProfile(
+  $credentials: ModelProviderCredentials!
+  $configuration: ModelProfileConfigInput!
+) {
+  probeModelProfile(credentials: $credentials, configuration: $configuration) {
+    outcome
+    message
+  }
+}
+
+query ModelListSets($first: Int!, $after: String, $query: String) {
+  modelSets(first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      # @genqlient(flatten: true)
+      node {
+        ...ModelSetDetails
+      }
+    }
+  }
+}
+
+query ModelListEmbeddingProfileSummaries(
+  $first: Int!
+  $after: String
+  $query: String
+) {
+  embeddingProfileSummaries(first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      node {
+        id
+        name
+        description
+        providerName
+        providerType
+        dimensions
+      }
+    }
+  }
+}
+
+mutation ModelProbeEmbeddingProfile(
+  $credentials: ModelProviderCredentials!
+  $configuration: EmbeddingProfileConfigInput!
+) {
+  probeEmbeddingProfile(credentials: $credentials, configuration: $configuration) {
+    outcome
+    message
+  }
+}

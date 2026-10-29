@@ -1,0 +1,27 @@
+event: started
+data: {"type":"started","conversation_id":"rcnv_1","request_id":"rreq_1"}
+
+id: rout_11AqAbp2Wz9Nd7UvRXaannSn
+event: thinking
+data: {"data":"Ask with pick_one.","id":"rout_11AqAbp2Wz9Nd7UvRXaannSn","type":"thinking"}
+
+id: rout_11WgCKM7UGyxshjcvsjLpTS7
+event: message
+data: {"data":"I need to know your favorite color.","id":"rout_11WgCKM7UGyxshjcvsjLpTS7","type":"message"}
+
+id: rout_11M9eWLV8nJiQ7h3cS73rhZu
+event: task
+data: {"data":{"kind":"client_task","response_schema":{"type":"object","properties":{"selected":{"type":"string","description":"The option the user selected"}},"required":["selected"]},"client_task":{"name":"pick_one","input":{"question":"Which color do you like?","options":["red","green","blue"]},"presentations":[]}},"id":"rout_11M9eWLV8nJiQ7h3cS73rhZu","type":"task"}
+
+id: rout_11562EbPzVNSVZnSB5y5DWoY
+event: task_response
+data: {"data":{"selected":"7"},"id":"rout_11562EbPzVNSVZnSB5y5DWoY","in_reply_to":"rout_11M9eWLV8nJiQ7h3cS73rhZu","type":"task_response"}
+
+id: rout_11Fh2SE73V1yWYcBcWfQtY87
+event: message
+data: {"data":"Thanks, wrapping up.","id":"rout_11Fh2SE73V1yWYcBcWfQtY87","type":"message"}
+
+id: rout_112opM5psQMVb3yuW4wBda3p
+event: response
+data: {"data":{"answer":"You picked a color."},"id":"rout_112opM5psQMVb3yuW4wBda3p","type":"response"}
+

@@ -1,0 +1,322 @@
+# Operations for the mesh, mesh link, mesh input, webhook and route commands.
+
+fragment MeshAgentVersionRef on AgentVersion {
+  id
+  ordinal
+  agent {
+    id
+    name
+  }
+}
+
+fragment MeshLinkView on Link {
+  stableID
+  name
+  description
+  transfersControl
+  createdAt
+  updatedAt
+  fromAgentVersion {
+    ...MeshAgentVersionRef
+  }
+  toAgentVersion {
+    ...MeshAgentVersionRef
+  }
+  linkResponses {
+    name
+    description
+    messageType
+  }
+}
+
+fragment MeshInputView on Input {
+  name
+  createdAt
+  updatedAt
+  agentVersion {
+    ...MeshAgentVersionRef
+  }
+  inputResponses {
+    name
+    description
+    messageType
+  }
+}
+
+fragment MeshView on Mesh {
+  id
+  name
+  description
+  tags
+  createdAt
+  updatedAt
+  draftVersion {
+    id
+    modelSet {
+      id
+      name
+    }
+    links {
+      ...MeshLinkView
+    }
+    inputs {
+      ...MeshInputView
+    }
+  }
+  memoryStore {
+    id
+    name
+  }
+  boundaries {
+    id
+    name
+  }
+}
+
+query MeshList($first: Int!, $after: String, $query: String) {
+  meshes(first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      # @genqlient(flatten: true)
+      node {
+        ...MeshView
+      }
+    }
+  }
+}
+
+query MeshGet($id: MeshID!) {
+  # @genqlient(flatten: true)
+  mesh(id: $id) {
+    ...MeshView
+  }
+}
+
+mutation MeshCopy($id: MeshID!) {
+  copyMesh(meshID: $id) {
+    mesh {
+      id
+    }
+  }
+}
+
+fragment MeshVersionView on MeshVersion {
+  id
+  ordinal
+  label
+  createdAt
+  updatedAt
+  modelSet {
+    id
+  }
+  mesh {
+    id
+    name
+    draftVersion {
+      id
+    }
+  }
+}
+
+query MeshVersionList($meshId: MeshID!, $first: Int!, $after: String, $query: String) {
+  mesh(id: $meshId) {
+    versions(first: $first, after: $after, query: $query) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      edges {
+        # @genqlient(flatten: true)
+        node {
+          ...MeshVersionView
+        }
+      }
+    }
+  }
+}
+
+query MeshVersionGet($id: MeshVersionID!) {
+  meshVersion(id: $id) {
+    ...MeshVersionView
+    links {
+      ...MeshLinkView
+    }
+    inputs {
+      ...MeshInputView
+    }
+  }
+}
+
+mutation MeshVersionLabel($id: MeshVersionID!, $label: String!) {
+  labelMeshVersion(meshVersionID: $id, label: $label) {
+    id
+  }
+}
+
+mutation MeshVersionMakeDraft($id: MeshVersionID!) {
+  makeDraftMeshVersion(meshVersionID: $id) {
+    id
+  }
+}
+
+mutation MeshVersionDelete($ids: [MeshVersionID!]!) {
+  deleteMeshVersions(meshVersionIDs: $ids) {
+    ids
+  }
+}
+
+mutation MeshSetAgentVersion($meshId: MeshID!, $from: AgentVersionID!, $to: AgentVersionID!) {
+  updateMeshAgentVersion(meshID: $meshId, agentVersionID: $from, targetAgentVersionID: $to) {
+    id
+  }
+}
+
+mutation MeshLinkAdd($meshId: MeshID!, $input: NewLink!) {
+  addMeshLink(meshID: $meshId, newLink: $input) {
+    stableID
+  }
+}
+
+mutation MeshLinkUpdate($stableId: LinkStableID!, $input: UpdateLink!) {
+  updateLinkByStableID(stableID: $stableId, input: $input) {
+    stableID
+  }
+}
+
+mutation MeshInputAdd($meshId: MeshID!, $input: NewInput!) {
+  addMeshInput(meshID: $meshId, input: $input) {
+    name
+  }
+}
+
+mutation MeshInputUpdate($meshId: MeshID!, $name: String!, $input: UpdateInput!) {
+  updateInput(meshID: $meshId, name: $name, input: $input) {
+    name
+  }
+}
+
+query MeshAgentList($first: Int!, $after: String, $query: String) {
+  agents(first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      node {
+        id
+        name
+      }
+    }
+  }
+}
+
+query MeshAgentLatestVersion($id: AgentID!) {
+  agent(id: $id) {
+    id
+    latestVersion {
+      id
+    }
+  }
+}
+
+query MeshModelSetList($first: Int!, $after: String, $query: String) {
+  modelSets(first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      node {
+        id
+        name
+      }
+    }
+  }
+}
+
+query MeshMemoryStoreByName($name: String!) {
+  memoryStoreByName(name: $name) {
+    id
+  }
+}
+
+query WebhookList($first: Int!, $after: String, $query: String) {
+  webhookDestinations(first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      # @genqlient(flatten: true)
+      node {
+        ...WebhookDestinationDetails
+      }
+    }
+  }
+}
+
+fragment RouteView on Route {
+  id
+  name
+  description
+  meshID
+  mesh {
+    name
+  }
+  segments {
+    meshVersionID
+    weight
+    ordinal
+    label
+  }
+  createdAt
+  updatedAt
+}
+
+query RouteList($meshId: MeshID, $first: Int!, $after: String, $query: String) {
+  routes(meshID: $meshId, first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      # @genqlient(flatten: true)
+      node {
+        ...RouteView
+      }
+    }
+  }
+}
+
+query RouteGet($id: RouteID!) {
+  # @genqlient(flatten: true)
+  route(id: $id) {
+    ...RouteView
+  }
+}
+
+mutation RouteCreate($input: NewRoute!) {
+  # @genqlient(flatten: true)
+  createRoute(input: $input) {
+    ...RouteView
+  }
+}
+
+mutation RouteUpdate(
+  $id: RouteID!
+  $input: UpdateRoute!
+) {
+  # @genqlient(flatten: true)
+  updateRoute(routeID: $id, input: $input) {
+    ...RouteView
+  }
+}
+
+mutation RouteDelete($ids: [RouteID!]!) {
+  deleteRoutes(routeIDs: $ids) {
+    ids
+  }
+}

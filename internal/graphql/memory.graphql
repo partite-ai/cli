@@ -1,0 +1,378 @@
+query MemoryListStores($first: Int!, $after: String, $query: String) {
+  memoryStores(first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      node {
+        ...MemoryStoreDetails
+      }
+    }
+  }
+}
+
+query MemoryListInteractionProfiles($first: Int!, $after: String, $query: String) {
+  memoryInteractionProfiles(first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      node {
+        ...MemoryInteractionProfileDetails
+      }
+    }
+  }
+}
+
+query MemoryFindEmbeddingProfiles($first: Int!, $after: String, $query: String) {
+  embeddingProfileSummaries(first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      node {
+        id
+        name
+        providerName
+      }
+    }
+  }
+}
+
+query MemoryFindModelProfiles($first: Int!, $after: String, $query: String) {
+  modelProfileSummaries(first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      node {
+        id
+        name
+        providerName
+      }
+    }
+  }
+}
+
+mutation MemoryCreateScope($memoryStoreID: MemoryStoreID!, $input: NewMemoryStoreScope!) {
+  # @genqlient(flatten: true)
+  createMemoryStoreScope(memoryStoreID: $memoryStoreID, input: $input) {
+    ...MemoryStoreScopeDetails
+  }
+}
+
+mutation MemoryUpdateScope($id: MemoryStoreScopeID!, $input: UpdateMemoryStoreScope!) {
+  # @genqlient(flatten: true)
+  updateMemoryStoreScope(id: $id, input: $input) {
+    ...MemoryStoreScopeDetails
+  }
+}
+
+mutation MemoryDeleteScopes($ids: [MemoryStoreScopeID!]!) {
+  deleteMemoryStoreScopes(memoryStoreScopeIDs: $ids) {
+    ids
+  }
+}
+
+# @genqlient(typename: "MemoryTagDetails")
+fragment MemoryTagDetails on MemoryTag {
+  key
+  value
+}
+
+# @genqlient(typename: "MemoryDocumentDetails")
+fragment MemoryDocumentDetails on MemoryDocument {
+  id
+  externalID
+  mediaType
+  time
+  ingestedAt
+  conversationID
+  sequence
+  speaker {
+    name
+    role
+  }
+  tags {
+    ...MemoryTagDetails
+  }
+  preview
+  previewTruncated
+}
+
+# @genqlient(typename: "MemoryChunkDetails")
+fragment MemoryChunkDetails on MemoryChunk {
+  id
+  documentID
+  index
+  text
+  sequence
+  time
+  tags {
+    ...MemoryTagDetails
+  }
+}
+
+# @genqlient(typename: "MemoryFactDetails")
+fragment MemoryFactDetails on MemoryFact {
+  id
+  text
+  class
+  origin
+  state
+  mergedIntoID
+  mergedReason
+  observedAt
+  periodStart
+  periodEnd
+  chunkID
+  scopeID
+  tags {
+    ...MemoryTagDetails
+  }
+  entityIDs
+}
+
+# @genqlient(typename: "MemoryObservationDetails")
+fragment MemoryObservationDetails on MemoryObservation {
+  id
+  text
+  topic
+  class
+  scopeID
+  scopeTag {
+    ...MemoryTagDetails
+  }
+  factIDs
+  periodStart
+  periodEnd
+  updatedAt
+  saidAt
+}
+
+query MemoryListDocuments(
+  $memoryStoreID: MemoryStoreID!
+  $first: Int!
+  $after: String
+  $orderBy: MemoryDocumentOrderBy!
+  $order: Order!
+  $query: String
+  $conversationID: String
+  $tag: MemoryTagInput
+) {
+  memoryDocuments(
+    memoryStoreID: $memoryStoreID
+    first: $first
+    after: $after
+    order_by: $orderBy
+    order: $order
+    query: $query
+    conversationID: $conversationID
+    tag: $tag
+  ) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      node {
+        ...MemoryDocumentDetails
+      }
+    }
+  }
+}
+
+query MemoryGetDocument($memoryStoreID: MemoryStoreID!, $id: ID!) {
+  memoryDocument(memoryStoreID: $memoryStoreID, id: $id) {
+    ...MemoryDocumentDetails
+  }
+}
+
+query MemoryListChunks($memoryStoreID: MemoryStoreID!, $documentID: ID!, $first: Int!, $after: String) {
+  memoryDocumentChunks(memoryStoreID: $memoryStoreID, documentID: $documentID, first: $first, after: $after) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      node {
+        ...MemoryChunkDetails
+      }
+    }
+  }
+}
+
+query MemoryGetChunk($memoryStoreID: MemoryStoreID!, $id: ID!) {
+  memoryChunk(memoryStoreID: $memoryStoreID, id: $id) {
+    ...MemoryChunkDetails
+  }
+}
+
+query MemoryListFacts(
+  $memoryStoreID: MemoryStoreID!
+  $first: Int!
+  $after: String
+  $orderBy: MemoryFactOrderBy!
+  $order: Order!
+  $query: String
+  $tag: MemoryTagInput
+  $origin: MemoryOrigin
+  $state: MemoryFactState
+  $documentID: ID
+  $conversationID: String
+) {
+  memoryFacts(
+    memoryStoreID: $memoryStoreID
+    first: $first
+    after: $after
+    order_by: $orderBy
+    order: $order
+    query: $query
+    tag: $tag
+    origin: $origin
+    state: $state
+    documentID: $documentID
+    conversationID: $conversationID
+  ) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      node {
+        ...MemoryFactDetails
+      }
+    }
+  }
+}
+
+query MemoryGetFact($memoryStoreID: MemoryStoreID!, $id: ID!) {
+  memoryFact(memoryStoreID: $memoryStoreID, id: $id) {
+    ...MemoryFactDetails
+  }
+}
+
+query MemoryListObservations(
+  $memoryStoreID: MemoryStoreID!
+  $first: Int!
+  $after: String
+  $orderBy: MemoryObservationOrderBy!
+  $order: Order!
+  $query: String
+  $tag: MemoryTagInput
+  $class: MemoryClass
+  $factID: ID
+) {
+  memoryObservations(
+    memoryStoreID: $memoryStoreID
+    first: $first
+    after: $after
+    order_by: $orderBy
+    order: $order
+    query: $query
+    tag: $tag
+    class: $class
+    factID: $factID
+  ) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      node {
+        ...MemoryObservationDetails
+      }
+    }
+  }
+}
+
+query MemoryGetObservation($memoryStoreID: MemoryStoreID!, $id: ID!) {
+  memoryObservation(memoryStoreID: $memoryStoreID, id: $id) {
+    ...MemoryObservationDetails
+  }
+}
+
+mutation MemoryDeleteDocuments($memoryStoreID: MemoryStoreID!, $ids: [ID!]!) {
+  deleteMemoryDocuments(memoryStoreID: $memoryStoreID, documentIDs: $ids) {
+    ids
+  }
+}
+
+mutation MemoryDeleteFacts($memoryStoreID: MemoryStoreID!, $ids: [ID!]!) {
+  deleteMemoryFacts(memoryStoreID: $memoryStoreID, factIDs: $ids) {
+    ids
+  }
+}
+
+mutation MemoryDeleteObservations($memoryStoreID: MemoryStoreID!, $ids: [ID!]!) {
+  deleteMemoryObservations(memoryStoreID: $memoryStoreID, observationIDs: $ids) {
+    ids
+  }
+}
+
+# @genqlient(typename: "MemoryRecallRecordDetails")
+fragment MemoryRecallRecordDetails on MemoryRecallRecord {
+  id
+  type
+  text
+  topic
+  score
+  tokens
+  textRank
+  meaningRank
+  textScore
+  meaningScore
+  recent
+  factCount
+  tags {
+    ...MemoryTagDetails
+  }
+}
+
+query MemoryRecall(
+  $memoryStoreID: MemoryStoreID!
+  $query: String
+  $conversationID: String
+  $recordTypes: [MemoryRecordType!]
+  $tag: MemoryTagInput
+  $budget: Int!
+  $omitSources: Boolean!
+  $minSimilarity: Float
+) {
+  memoryRecall(
+    memoryStoreID: $memoryStoreID
+    query: $query
+    conversationID: $conversationID
+    recordTypes: $recordTypes
+    tag: $tag
+    budget: $budget
+    omitSources: $omitSources
+    minSimilarity: $minSimilarity
+  ) {
+    weighed
+    budget
+    spent
+    depth
+    textFound
+    meaningFound
+    minSimilarity
+    embedError
+    took {
+      total
+      embed
+      meaning
+      text
+      read
+    }
+    records {
+      ...MemoryRecallRecordDetails
+    }
+    dropped {
+      ...MemoryRecallRecordDetails
+    }
+  }
+}

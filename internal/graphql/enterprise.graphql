@@ -1,0 +1,495 @@
+# Operations for the enterprise-only eval and schedule commands. Names start
+# with Enterprise so they do not clash with other groups.
+
+# ---------------------------------------------------------------------------
+# Lookups by name for references in flags and spec files.
+# ---------------------------------------------------------------------------
+
+query EnterpriseFindMeshes($first: Int!, $after: String, $query: String) {
+  meshes(first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      node {
+        id
+        name
+      }
+    }
+  }
+}
+
+query EnterpriseFindModelSets($first: Int!, $after: String, $query: String) {
+  modelSets(first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      node {
+        id
+        name
+      }
+    }
+  }
+}
+
+query EnterpriseFindRoutes($meshID: MeshID, $first: Int!, $after: String, $query: String) {
+  routes(meshID: $meshID, first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      node {
+        id
+        name
+      }
+    }
+  }
+}
+
+# ---------------------------------------------------------------------------
+# Judge and computed metrics.
+# ---------------------------------------------------------------------------
+
+query EnterpriseListJudgeMetrics($first: Int!, $after: String, $query: String) {
+  metrics(type: JUDGED, first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      node {
+        ... on JudgeMetric {
+          ...JudgeMetricDetails
+        }
+      }
+    }
+  }
+}
+
+query EnterpriseListComputedMetrics($first: Int!, $after: String) {
+  metrics(type: COMPUTED, first: $first, after: $after) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      node {
+        ... on ComputedMetric {
+          ...ComputedMetricDetails
+        }
+      }
+    }
+  }
+}
+
+mutation EnterpriseDeleteJudgeMetrics($ids: [JudgeMetricID!]!) {
+  deleteJudgeMetrics(ids: $ids) {
+    ids
+  }
+}
+
+# ---------------------------------------------------------------------------
+# Rubrics. Like RubricDetails, with the metric names for people.
+# ---------------------------------------------------------------------------
+
+# @genqlient(typename: "EnterpriseRubric")
+fragment EnterpriseRubric on Rubric {
+  id
+  name
+  description
+  createdAt
+  updatedAt
+  metrics {
+    __typename
+    ... on RubricJudgeMetric {
+      judgeEntryID: id
+      judgeMetric {
+        id
+        name
+      }
+      trialCount
+      complexity
+      inputValues
+      judgeWeight: weight
+    }
+    ... on RubricComputedMetric {
+      computedEntryID: id
+      computedMetric {
+        key
+        name
+      }
+      scoreFloor
+      scoreCeiling
+      lowerIsBetter
+      computedWeight: weight
+    }
+  }
+}
+
+query EnterpriseListRubrics($first: Int!, $after: String, $query: String) {
+  rubrics(first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      # @genqlient(flatten: true)
+      node {
+        ...EnterpriseRubric
+      }
+    }
+  }
+}
+
+query EnterpriseGetRubric($id: RubricID!) {
+  # @genqlient(flatten: true)
+  rubric(id: $id) {
+    ...EnterpriseRubric
+  }
+}
+
+mutation EnterpriseCreateRubric($input: NewRubric!) {
+  # @genqlient(flatten: true)
+  createRubric(input: $input) {
+    ...EnterpriseRubric
+  }
+}
+
+mutation EnterpriseModifyRubric($id: RubricID!, $input: UpdateRubric!) {
+  # @genqlient(flatten: true)
+  updateRubric(id: $id, input: $input) {
+    ...EnterpriseRubric
+  }
+}
+
+mutation EnterpriseDeleteRubrics($ids: [RubricID!]!) {
+  deleteRubrics(ids: $ids) {
+    ids
+  }
+}
+
+# ---------------------------------------------------------------------------
+# Eval mesh monitors.
+# ---------------------------------------------------------------------------
+
+# @genqlient(typename: "EnterpriseMonitor")
+fragment EnterpriseMonitor on EvalMeshMonitor {
+  id
+  meshID
+  meshName
+  rubricID
+  rubricName
+  modelSetID
+  modelSetName
+  enabled
+  sampleRate
+  createdAt
+  updatedAt
+}
+
+query EnterpriseListMonitors($meshID: MeshID, $first: Int!, $after: Time) {
+  evalMeshMonitors(meshID: $meshID, first: $first, after: $after) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      # @genqlient(flatten: true)
+      node {
+        ...EnterpriseMonitor
+      }
+    }
+  }
+}
+
+query EnterpriseGetMonitor($id: EvalMeshMonitorID!) {
+  # @genqlient(flatten: true)
+  evalMeshMonitor(id: $id) {
+    ...EnterpriseMonitor
+  }
+}
+
+mutation EnterpriseCreateMonitor($input: NewEvalMeshMonitor!) {
+  # @genqlient(flatten: true)
+  createEvalMeshMonitor(input: $input) {
+    ...EnterpriseMonitor
+  }
+}
+
+mutation EnterpriseModifyMonitor($id: EvalMeshMonitorID!, $input: UpdateEvalMeshMonitor!) {
+  # @genqlient(flatten: true)
+  updateEvalMeshMonitor(id: $id, input: $input) {
+    ...EnterpriseMonitor
+  }
+}
+
+# ---------------------------------------------------------------------------
+# Evaluations and evaluation trace runs.
+# ---------------------------------------------------------------------------
+
+# @genqlient(typename: "EnterpriseEvaluationSummary")
+fragment EnterpriseEvaluationSummary on Evaluation {
+  id
+  traceRequestID
+  meshID
+  meshName
+  meshVersionID
+  meshOrdinal
+  rubricID
+  rubricName
+  modelSetID
+  modelSetName
+  monitorID
+  traceRunID
+  status
+  rubricScore
+  createdAt
+}
+
+# @genqlient(typename: "EnterpriseEvaluationResult")
+fragment EnterpriseEvaluationResult on EvaluationResult {
+  rubricMetricType
+  rubricMetricID
+  metricName
+  category
+  trialCount
+  score
+  rawValue
+  unit
+  measurementStatus
+  measurementReason
+  label
+  feedback
+  error
+}
+
+query EnterpriseListEvaluations($filter: EvaluationsFilter, $first: Int!, $after: Time) {
+  evaluations(filter: $filter, first: $first, after: $after, order: DESC) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      # @genqlient(flatten: true)
+      node {
+        ...EnterpriseEvaluationSummary
+      }
+    }
+  }
+}
+
+query EnterpriseGetEvaluation($id: EvalID!) {
+  evaluation(id: $id) {
+    ...EnterpriseEvaluationSummary
+    results {
+      ...EnterpriseEvaluationResult
+    }
+  }
+}
+
+mutation EnterpriseDeleteEvaluations($ids: [EvalID!]!) {
+  deleteEvaluations(ids: $ids) {
+    ids
+  }
+}
+
+# @genqlient(typename: "EnterpriseTraceRun")
+fragment EnterpriseTraceRun on EvaluationTraceRun {
+  id
+  traceID
+  scope
+  meshID
+  meshVersionID
+  rubricID
+  modelSetID
+  status
+  evaluationCount
+  completedCount
+  erroredCount
+  pendingCount
+  rubricScore
+  metricScores {
+    metricName
+    rubricMetricType
+    category
+    meanScore
+    scoredEvaluationCount
+  }
+  startedAt
+  completedAt
+  createdAt
+}
+
+query EnterpriseListTraceRuns($filter: EvaluationTraceRunsFilter, $first: Int!, $after: Time) {
+  evaluationTraceRuns(filter: $filter, first: $first, after: $after) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      # @genqlient(flatten: true)
+      node {
+        ...EnterpriseTraceRun
+      }
+    }
+  }
+}
+
+query EnterpriseGetTraceRun($id: EvalTraceRunID!) {
+  # @genqlient(flatten: true)
+  evaluationTraceRun(id: $id) {
+    ...EnterpriseTraceRun
+  }
+}
+
+mutation EnterpriseDeleteTraceRuns($ids: [EvalTraceRunID!]!) {
+  deleteEvaluationTraceRuns(ids: $ids) {
+    ids
+  }
+}
+
+# ---------------------------------------------------------------------------
+# Evaluation reports.
+# ---------------------------------------------------------------------------
+
+query EnterpriseEvaluationReportRubrics($input: EvaluationReportRangeInput!) {
+  evaluationReportRubrics(input: $input) {
+    rubricID
+    name
+    description
+    selectedRequestCount
+  }
+}
+
+# @genqlient(typename: "EnterpriseReportAggregate")
+fragment EnterpriseReportAggregate on EvaluationReportAggregate {
+  totalRequestCount
+  selectedRequestCount
+  successfulRequestCount
+  latestPendingRequestCount
+  latestFailedRequestCount
+  coverageRatio
+  rubricScore
+  metrics {
+    rubricMetricID
+    value
+    score
+    contributingRequestCount
+  }
+}
+
+query EnterpriseEvaluationReport($input: EvaluationReportInput!) {
+  evaluationReport(input: $input) {
+    meshID
+    rubricID
+    startTime
+    endTime
+    interval
+    metrics {
+      rubricMetricID
+      type
+      name
+      category
+      unit
+      aggregation
+      weight
+    }
+    versions {
+      meshVersionID
+      ordinal
+      label
+      summary {
+        ...EnterpriseReportAggregate
+      }
+      points {
+        startTime
+        endTime
+        aggregate {
+          ...EnterpriseReportAggregate
+        }
+      }
+    }
+  }
+}
+
+# ---------------------------------------------------------------------------
+# Schedules.
+# ---------------------------------------------------------------------------
+
+# @genqlient(typename: "EnterpriseSchedule")
+fragment EnterpriseSchedule on Schedule {
+  id
+  name
+  description
+  mesh {
+    id
+    name
+  }
+  meshVersionLabel
+  route {
+    id
+    name
+  }
+  inputName
+  input
+  conversationTags
+  notificationChannelID
+  cronExpression
+  enabled
+  nextRunAt
+  lastRunAt
+  lastRunConversationID
+  lastRunError
+  createdAt
+  updatedAt
+}
+
+query EnterpriseListSchedules($first: Int!, $after: String, $query: String) {
+  schedules(first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      # @genqlient(flatten: true)
+      node {
+        ...EnterpriseSchedule
+      }
+    }
+  }
+}
+
+query EnterpriseGetSchedule($id: ScheduleID!) {
+  # @genqlient(flatten: true)
+  schedule(id: $id) {
+    ...EnterpriseSchedule
+  }
+}
+
+mutation EnterpriseCreateSchedule($input: NewSchedule!) {
+  # @genqlient(flatten: true)
+  createSchedule(input: $input) {
+    ...EnterpriseSchedule
+  }
+}
+
+mutation EnterpriseModifySchedule($id: ScheduleID!, $input: UpdateSchedule!) {
+  # @genqlient(flatten: true)
+  updateSchedule(id: $id, input: $input) {
+    ...EnterpriseSchedule
+  }
+}
+
+mutation EnterpriseDeleteSchedules($ids: [ScheduleID!]!) {
+  deleteSchedules(scheduleIDs: $ids) {
+    ids
+  }
+}
+
+query EnterpriseCronNextRun($cronExpression: String!) {
+  cronNextRun(cronExpression: $cronExpression)
+}

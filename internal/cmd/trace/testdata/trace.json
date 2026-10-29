@@ -1,0 +1,311 @@
+{
+ "id": "ttrc_11M9eWLV8nJiQ7h3cS73rhZu",
+ "conversationID": "rcnv_11M9eWLV8nJiQ7h3cS73rhZu",
+ "createdAt": "2026-10-15T21:34:56.613913-07:00",
+ "meshSnapshot": {
+  "id": "cmsh_11AL552WdT69LrwqHzj3GPTb",
+  "name": "cli-runtime-test",
+  "meshID": "cmsh_11AL552WdT69LrwqHzj3GPTb",
+  "versionID": "cmsv_11WgCKM7UGyxshjcvsjLpTS7",
+  "versionOrdinal": 1,
+  "modelSetName": "cli-runtime-fake",
+  "agents": [
+   {
+    "id": "cagt_11AqAbp2Wz9Nd7UvRXaannSn",
+    "name": "helper"
+   },
+   {
+    "id": "cagt_11WgCKM7UGyxshjcvsjLpTS7",
+    "name": "triager"
+   }
+  ],
+  "inputs": [
+   {
+    "id": "cinp_11Fh2SE73V1yWYcBcWfQtY87",
+    "name": "chat",
+    "agentID": "cagt_11AqAbp2Wz9Nd7UvRXaannSn"
+   },
+   {
+    "id": "cinp_112opM5psQMVb3yuW4wBda3p",
+    "name": "triage",
+    "agentID": "cagt_11WgCKM7UGyxshjcvsjLpTS7"
+   }
+  ],
+  "links": []
+ },
+ "requests": [
+  {
+   "id": "treq_11M9eWLV8nJiQ7h3cS73rhZu",
+   "conversationRequestID": "rreq_11M9eWLV8nJiQ7h3cS73rhZu",
+   "createdAt": "2026-10-15T21:34:56.615615-07:00",
+   "status": "COMPLETE",
+   "statusData": null,
+   "hops": [
+    {
+     "id": "thop_11JiyD6MZ2rhKm7kLRxZ5CnE",
+     "parentID": null,
+     "linkID": "start",
+     "actionID": "request",
+     "createdAt": "2026-10-15T21:34:56.615674-07:00",
+     "messages": [
+      {
+       "id": "tmsg_119kLqF9KA7EDsHTYsJgk4KN",
+       "role": "USER",
+       "isError": false,
+       "error": null,
+       "createdAt": "2026-10-15T21:34:56.615997-07:00",
+       "messageParts": {
+        "conversationRequest": {
+         "text": "colors fake-script:5ca1c5d447155619"
+        },
+        "conversationResponse": null,
+        "userPrompt": null,
+        "userToolOutputs": null,
+        "agentText": null,
+        "agentThinking": null,
+        "agentToolUses": null
+       },
+       "modelTrace": null
+      },
+      {
+       "id": "tmsg_11JTxZmycs3bt7Q6NHerejYr",
+       "role": "AGENT",
+       "isError": false,
+       "error": null,
+       "createdAt": "2026-10-15T21:34:59.633236-07:00",
+       "messageParts": {
+        "conversationRequest": null,
+        "conversationResponse": {
+         "answer": "Done."
+        },
+        "userPrompt": null,
+        "userToolOutputs": null,
+        "agentText": null,
+        "agentThinking": null,
+        "agentToolUses": null
+       },
+       "modelTrace": null
+      }
+     ]
+    },
+    {
+     "id": "thop_11CP4zVLJ6s65cn1ixcznF4X",
+     "parentID": "thop_11JiyD6MZ2rhKm7kLRxZ5CnE",
+     "linkID": "input:cinp_11Fh2SE73V1yWYcBcWfQtY87",
+     "actionID": "start",
+     "createdAt": "2026-10-15T21:34:56.616111-07:00",
+     "messages": [
+      {
+       "id": "tmsg_11PB79yh8RaJCwZJXcAkUCui",
+       "role": "USER",
+       "isError": false,
+       "error": null,
+       "createdAt": "2026-10-15T21:34:56.619551-07:00",
+       "messageParts": {
+        "conversationRequest": null,
+        "conversationResponse": null,
+        "userPrompt": [
+         {
+          "text": "(prompt)"
+         }
+        ],
+        "userToolOutputs": [],
+        "agentText": null,
+        "agentThinking": null,
+        "agentToolUses": null
+       },
+       "modelTrace": null
+      },
+      {
+       "id": "tmsg_11QwHvM4dSweXLAj26dJ2nvb",
+       "role": "AGENT",
+       "isError": false,
+       "error": null,
+       "createdAt": "2026-10-15T21:34:56.619632-07:00",
+       "messageParts": {
+        "conversationRequest": null,
+        "conversationResponse": null,
+        "userPrompt": null,
+        "userToolOutputs": null,
+        "agentText": [
+         "I need to know your favorite color."
+        ],
+        "agentThinking": [
+         "Ask with pick_one."
+        ],
+        "agentToolUses": [
+         {
+          "callID": "call_1792125296619021000_0",
+          "name": "pick_one",
+          "input": {
+           "options": [
+            "red",
+            "green",
+            "blue"
+           ],
+           "question": "Which color do you like?"
+          }
+         }
+        ]
+       },
+       "modelTrace": {
+        "id": "tmdl_117W24USme3ZJY9Yz2gXrWDb",
+        "timeStart": "2026-10-15T21:34:56.618507-07:00",
+        "timeEnd": "2026-10-15T21:34:56.619229-07:00",
+        "providerType": "OPEN_AI_COMPATIBLE",
+        "modelName": "fake",
+        "tokensIn": 10,
+        "tokensOut": 5,
+        "tokensTotal": 15,
+        "tokensCacheRead": null,
+        "tokensCacheWrite": null,
+        "tokensReasoning": null,
+        "costTotal": null
+       }
+      },
+      {
+       "id": "tmsg_11ET8fh7qVswEaLghttaJScj",
+       "role": "USER",
+       "isError": false,
+       "error": null,
+       "createdAt": "2026-10-15T21:34:59.616256-07:00",
+       "messageParts": {
+        "conversationRequest": null,
+        "conversationResponse": null,
+        "userPrompt": null,
+        "userToolOutputs": [
+         {
+          "callID": "call_1792125296619021000_0",
+          "isError": false,
+          "output": [
+           {
+            "selected": "green"
+           }
+          ]
+         }
+        ],
+        "agentText": null,
+        "agentThinking": null,
+        "agentToolUses": null
+       },
+       "modelTrace": null
+      },
+      {
+       "id": "tmsg_11DU6FcjsL88jTaiKVAAuJYR",
+       "role": "AGENT",
+       "isError": false,
+       "error": null,
+       "createdAt": "2026-10-15T21:34:59.616403-07:00",
+       "messageParts": {
+        "conversationRequest": null,
+        "conversationResponse": null,
+        "userPrompt": null,
+        "userToolOutputs": null,
+        "agentText": [
+         "Thanks."
+        ],
+        "agentThinking": [],
+        "agentToolUses": [
+         {
+          "callID": "call_1792125299615091000_0",
+          "name": "multi_select",
+          "input": {
+           "options": [
+            "apple",
+            "pear",
+            "plum"
+           ],
+           "question": "Which fruits?"
+          }
+         }
+        ]
+       },
+       "modelTrace": {
+        "id": "tmdl_11KPzRyfxoyJt2QjB1if1DwF",
+        "timeStart": "2026-10-15T21:34:59.614218-07:00",
+        "timeEnd": "2026-10-15T21:34:59.615386-07:00",
+        "providerType": "OPEN_AI_COMPATIBLE",
+        "modelName": "fake",
+        "tokensIn": 10,
+        "tokensOut": 5,
+        "tokensTotal": 15,
+        "tokensCacheRead": null,
+        "tokensCacheWrite": null,
+        "tokensReasoning": null,
+        "costTotal": null
+       }
+      },
+      {
+       "id": "tmsg_11SDfFLWc3pGAgagC7krWPdD",
+       "role": "USER",
+       "isError": false,
+       "error": null,
+       "createdAt": "2026-10-15T21:34:59.632506-07:00",
+       "messageParts": {
+        "conversationRequest": null,
+        "conversationResponse": null,
+        "userPrompt": null,
+        "userToolOutputs": [
+         {
+          "callID": "call_1792125299615091000_0",
+          "isError": false,
+          "output": [
+           {
+            "selected": [
+             "apple",
+             "plum"
+            ]
+           }
+          ]
+         }
+        ],
+        "agentText": null,
+        "agentThinking": null,
+        "agentToolUses": null
+       },
+       "modelTrace": null
+      },
+      {
+       "id": "tmsg_11XyX8Ucm6jZQGEZadTitCiC",
+       "role": "AGENT",
+       "isError": false,
+       "error": null,
+       "createdAt": "2026-10-15T21:34:59.632579-07:00",
+       "messageParts": {
+        "conversationRequest": null,
+        "conversationResponse": null,
+        "userPrompt": null,
+        "userToolOutputs": null,
+        "agentText": [],
+        "agentThinking": [],
+        "agentToolUses": [
+         {
+          "callID": "call_1792125299632008000_0",
+          "name": "answer",
+          "input": {
+           "answer": "Done."
+          }
+         }
+        ]
+       },
+       "modelTrace": {
+        "id": "tmdl_113z21bWHz4CCPBMRfkKDW62",
+        "timeStart": "2026-10-15T21:34:59.631625-07:00",
+        "timeEnd": "2026-10-15T21:34:59.632132-07:00",
+        "providerType": "OPEN_AI_COMPATIBLE",
+        "modelName": "fake",
+        "tokensIn": 10,
+        "tokensOut": 5,
+        "tokensTotal": 15,
+        "tokensCacheRead": null,
+        "tokensCacheWrite": null,
+        "tokensReasoning": null,
+        "costTotal": null
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

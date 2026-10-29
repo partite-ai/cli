@@ -1,0 +1,153 @@
+query AgentList($first: Int!, $after: String, $query: String) {
+  agents(first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      # @genqlient(flatten: true)
+      node {
+        ...AgentDetails
+      }
+    }
+  }
+}
+
+# @genqlient(typename: "AgentVersionSummary")
+fragment AgentVersionSummary on AgentVersion {
+  id
+  ordinal
+  label
+  modelComplexity
+  createdAt
+}
+
+query AgentListVersions($id: AgentID!, $first: Int!, $after: String) {
+  agent(id: $id) {
+    versions(first: $first, after: $after) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      edges {
+        # @genqlient(flatten: true)
+        node {
+          ...AgentVersionSummary
+        }
+      }
+    }
+  }
+}
+
+mutation AgentLabelVersion($id: AgentVersionID!, $label: String!) {
+  # @genqlient(flatten: true)
+  labelAgentVersion(agentVersionID: $id, label: $label) {
+    ...AgentVersionSummary
+  }
+}
+
+mutation AgentCopy($id: AgentID!) {
+  copyAgent(agentID: $id) {
+    # @genqlient(flatten: true)
+    agent {
+      ...AgentDetails
+    }
+  }
+}
+
+query AgentFindMcpConnections($query: String!) {
+  mcpConnections(first: 100, query: $query) {
+    edges {
+      node {
+        id
+        name
+      }
+    }
+  }
+}
+
+query AgentFindParticles($query: String!) {
+  installedParticles(first: 100, query: $query) {
+    edges {
+      node {
+        id
+        name
+      }
+    }
+  }
+}
+
+query AgentFindMemoryInteractionProfiles($query: String!) {
+  memoryInteractionProfiles(first: 100, query: $query) {
+    edges {
+      node {
+        id
+        name
+      }
+    }
+  }
+}
+
+query AgentListClientTaskDefinitions($first: Int!, $after: String, $query: String) {
+  clientTaskDefinitions(first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      # @genqlient(flatten: true)
+      node {
+        ...ClientTaskDefinitionDetails
+      }
+    }
+  }
+}
+
+# @genqlient(typename: "AgentSkillSummary")
+fragment AgentSkillSummary on Skill {
+  id
+  name
+  declaredName
+  description
+  agentUsageCount
+  createdAt
+  updatedAt
+}
+
+query AgentListSkills($first: Int!, $after: String, $query: String) {
+  skills(first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      # @genqlient(flatten: true)
+      node {
+        ...AgentSkillSummary
+      }
+    }
+  }
+}
+
+query AgentSkillFiles($id: SkillID!) {
+  skill(id: $id) {
+    files {
+      path
+      size
+    }
+  }
+}
+
+mutation AgentCopySkill($id: SkillID!, $name: String!) {
+  # @genqlient(flatten: true)
+  copySkill(skillID: $id, name: $name) {
+    ...SkillDetails
+  }
+}
+
+mutation AgentEditSkillFiles($id: SkillID!, $input: EditSkillFiles!) {
+  # @genqlient(flatten: true)
+  editSkillFiles(skillID: $id, input: $input) {
+    ...SkillDetails
+  }
+}

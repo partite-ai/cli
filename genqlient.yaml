@@ -1,0 +1,215 @@
+# The enterprise schema extends the mesh one. Regenerating needs both
+# checkouts beside this repo; the generated code is committed, so building does
+# not. Regenerate with scripts/generate.sh.
+schema:
+  - ../mesh/pkg/graph/schema.graphqls
+  - ../mesh-enterprise/pkg/graph/schema.graphqls
+operations:
+  - internal/graphql/*.graphql
+generated: internal/graphql/generated.go
+optional: pointer_omitempty
+bindings:
+  AgentID:
+    type: string
+  AgentVersionID:
+    type: string
+  ApiKeyID:
+    type: string
+  LinkID:
+    type: string
+  LinkStableID:
+    type: string
+  McpConnectionID:
+    type: string
+  McpConnectionSubscriptionID:
+    type: string
+  McpConnectionTunnelKeyID:
+    type: string
+  MemorySlotID:
+    type: string
+  ParticleArtifactID:
+    type: string
+  InstalledParticleID:
+    type: string
+  MeshID:
+    type: string
+  MeshVersionID:
+    type: string
+  WebhookDestinationID:
+    type: string
+  ModelProviderID:
+    type: string
+  ModelProfileID:
+    type: string
+  ModelSetID:
+    type: string
+  EmbeddingProfileID:
+    type: string
+  MemoryStoreID:
+    type: string
+  MemoryStoreScopeID:
+    type: string
+  MemoryInteractionProfileID:
+    type: string
+  WorkspaceID:
+    type: string
+  RubricID:
+    type: string
+  RubricJudgeMetricID:
+    type: string
+  RubricComputedMetricID:
+    type: string
+  JudgeMetricID:
+    type: string
+  EvalMeshMonitorID:
+    type: string
+  ClientTaskDefinitionID:
+    type: string
+  ClientTaskAgentAssociationID:
+    type: string
+  SkillID:
+    type: string
+  SkillFileID:
+    type: string
+  ConversationResourceID:
+    type: string
+  InputID:
+    type: string
+  InputResponseID:
+    type: string
+  LinkResponseID:
+    type: string
+  RouteID:
+    type: string
+  ScheduleID:
+    type: string
+  TraceHopID:
+    type: string
+  TraceID:
+    type: string
+  TraceMessageID:
+    type: string
+  TraceModelID:
+    type: string
+  TraceRequestID:
+    type: string
+  EvalID:
+    type: string
+  EvalResultID:
+    type: string
+  EvalResultTrialID:
+    type: string
+  EvalTraceRunID:
+    type: string
+  Date:
+    type: string
+  SerializableValue:
+    type: "encoding/json.RawMessage"
+  SerializableType:
+    type: "encoding/json.RawMessage"
+  SerializableTMap:
+    type: "encoding/json.RawMessage"
+  JSON:
+    type: "encoding/json.RawMessage"
+  Tag:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.Tag"
+  Time:
+    type: string
+  NewAgent:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.NewAgent"
+  UpdateAgent:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.UpdateAgent"
+  NewModelProvider:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.NewModelProvider"
+  UpdateModelProvider:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.UpdateModelProvider"
+  NewModelProfile:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.NewModelProfile"
+  UpdateModelProfile:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.UpdateModelProfile"
+  NewModelSet:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.NewModelSet"
+  UpdateModelSet:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.UpdateModelSet"
+  NewMesh:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.NewMesh"
+  UpdateMesh:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.UpdateMesh"
+  NewLink:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.NewLink"
+  UpdateLink:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.UpdateLink"
+  NewInput:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.NewInput"
+  UpdateInput:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.UpdateInput"
+  NewWebhookDestination:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.NewWebhookDestination"
+  UpdateWebhookDestination:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.UpdateWebhookDestination"
+  NewClientTaskDefinition:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.NewClientTaskDefinition"
+  UpdateClientTaskDefinition:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.UpdateClientTaskDefinition"
+  NewSkill:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.NewSkill"
+  UpdateSkill:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.UpdateSkill"
+  CreateInstalledParticleInput:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.CreateInstalledParticleInput"
+  UpdateInstalledParticleInput:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.UpdateInstalledParticleInput"
+  NewEmbeddingProfile:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.NewEmbeddingProfile"
+  UpdateEmbeddingProfile:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.UpdateEmbeddingProfile"
+  NewMemoryStore:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.NewMemoryStore"
+  UpdateMemoryStore:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.UpdateMemoryStore"
+  NewMemoryInteractionProfile:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.NewMemoryInteractionProfile"
+  UpdateJudgeMetric:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.UpdateJudgeMetric"
+  UpdateRubric:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.UpdateRubric"
+  UpdateMemoryInteractionProfile:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.UpdateMemoryInteractionProfile"
+  EditSkillFiles:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.EditSkillFiles"
+  NewMemoryStoreScope:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.NewMemoryStoreScope"
+  UpdateMemoryStoreScope:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.UpdateMemoryStoreScope"
+  ModelProviderConfigInput:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.ModelProviderConfigInput"
+  ModelProfileConfigInput:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.ModelProfileConfigInput"
+  EmbeddingProfileConfigInput:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.EmbeddingProfileConfigInput"
+  UpdateSchedule:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.UpdateSchedule"
+  UpdateRoute:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.UpdateRoute"
+  McpConnectionSubscriptionChanges:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.McpConnectionSubscriptionChanges"
+  NewBoundary:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.NewBoundary"
+  UpdateBoundary:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.UpdateBoundary"
+  NewAccessPoint:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.NewAccessPoint"
+  UpdateAccessPoint:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.UpdateAccessPoint"
+  UpdateAccessPointClient:
+    type: "*github.com/partite-ai/partite-cli/internal/graphql.UpdateAccessPointClient"
+  BoundaryID:
+    type: string
+  AccessPointID:
+    type: string
+  AccessPointClientID:
+    type: string
+  AccessPointClientSecretID:
+    type: string
+  EvalSuiteID:
+    type: string

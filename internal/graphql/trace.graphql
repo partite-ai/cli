@@ -1,0 +1,180 @@
+# Operations for the runtime commands: run, chat, conversation and trace.
+
+# @genqlient(typename: "RuntimeMesh")
+fragment RuntimeMesh on Mesh {
+  id
+  name
+  labels
+  routes {
+    id
+    name
+  }
+}
+
+query RuntimeFindMeshes($first: Int!, $after: String, $query: String) {
+  meshes(first: $first, after: $after, query: $query) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      # @genqlient(flatten: true)
+      node {
+        ...RuntimeMesh
+      }
+    }
+  }
+}
+
+query RuntimeGetMesh($id: MeshID!) {
+  # @genqlient(flatten: true)
+  mesh(id: $id) {
+    ...RuntimeMesh
+  }
+}
+
+# @genqlient(typename: "RuntimeTraceSummary")
+fragment RuntimeTraceSummary on Trace {
+  id
+  conversationID
+  createdAt
+  meshSnapshot {
+    id
+    name
+    versionID
+    versionOrdinal
+  }
+  requests {
+    id
+    conversationRequestID
+    createdAt
+    status
+  }
+}
+
+query RuntimeListTraces(
+  $first: Int!
+  $after: String
+  $query: String
+  $filter: TraceFilter
+) {
+  traces(first: $first, after: $after, query: $query, filter: $filter) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      # @genqlient(flatten: true)
+      node {
+        ...RuntimeTraceSummary
+      }
+    }
+  }
+}
+
+# @genqlient(typename: "RuntimeTraceModel")
+fragment RuntimeTraceModel on TraceModel {
+  id
+  timeStart
+  timeEnd
+  providerType
+  modelName
+  tokensIn
+  tokensOut
+  tokensTotal
+  tokensCacheRead
+  tokensCacheWrite
+  tokensReasoning
+  costTotal
+}
+
+# @genqlient(typename: "RuntimeTraceMessage")
+fragment RuntimeTraceMessage on TraceMessage {
+  id
+  role
+  isError
+  error
+  createdAt
+  messageParts {
+    conversationRequest
+    conversationResponse
+    userPrompt
+    userToolOutputs {
+      callID
+      isError
+      output
+    }
+    agentText
+    agentThinking
+    agentToolUses {
+      callID
+      name
+      input
+    }
+  }
+  # @genqlient(flatten: true)
+  modelTrace {
+    ...RuntimeTraceModel
+  }
+}
+
+# @genqlient(typename: "RuntimeTraceDetail")
+fragment RuntimeTraceDetail on Trace {
+  id
+  conversationID
+  createdAt
+  meshSnapshot {
+    id
+    name
+    meshID
+    versionID
+    versionOrdinal
+    modelSetName
+    agents {
+      id
+      name
+    }
+    inputs {
+      id
+      name
+      agentID
+    }
+    links {
+      id
+      name
+      fromAgentID
+      toAgentID
+    }
+  }
+  requests {
+    id
+    conversationRequestID
+    createdAt
+    status
+    statusData
+    hops {
+      id
+      parentID
+      linkID
+      actionID
+      createdAt
+      # @genqlient(flatten: true)
+      messages {
+        ...RuntimeTraceMessage
+      }
+    }
+  }
+}
+
+query RuntimeGetTrace($id: TraceID, $conversationID: String) {
+  # @genqlient(flatten: true)
+  trace(id: $id, conversationID: $conversationID) {
+    ...RuntimeTraceDetail
+  }
+}
+
+mutation RuntimeDeleteTraces($ids: [TraceID!]!) {
+  deleteTraces(traceIDs: $ids) {
+    ids
+  }
+}
