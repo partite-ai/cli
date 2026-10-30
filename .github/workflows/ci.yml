@@ -3,16 +3,83 @@ name: CI
 on:
   push:
     branches: [main]
+    tags: ['v*']
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  GOWORK: 'off'
+  GOFLAGS: '-mod=readonly'
+  PARTITE_NO_KEYRING: '1'
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    name: Build and test (${{ matrix.target }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            target: linux-amd64
+            binary: partite
+          - runner: macos-15-intel
+            target: darwin-amd64
+            binary: partite
+          - runner: macos-15
+            target: darwin-arm64
+            binary: partite
+          - runner: windows-2025
+            target: windows-amd64
+            binary: partite.exe
+    defaults:
+      run:
+        shell: bash
+    env:
+      BINARY_NAME: ${{ matrix.binary }}
+      ARCHIVE_NAME: partite-${{ matrix.target }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
-      - run: go build ./...
-      - run: go vet ./...
-      - run: go test ./...
+      - name: Verify modules
+        run: go mod verify
+      - name: Vet
+        run: go vet ./...
+      - name: Test
+        run: go test ./...
+      - name: Build CLI
+        run: |
+          version="dev-${GITHUB_SHA:0:12}"
+          if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
+            version="$GITHUB_REF_NAME"
+          fi
+          mkdir -p dist
+          go build -trimpath -ldflags "-s -w -X github.com/partite-ai/partite-cli/internal/cmdutil.Version=$version" -o "dist/$BINARY_NAME" ./cmd/partite
+      - name: Check CLI startup
+        run: |
+          "./dist/$BINARY_NAME" --version
+          "./dist/$BINARY_NAME" --help
+      - name: Package Linux and macOS
+        if: runner.os != 'Windows'
+        run: tar -czf "dist/$ARCHIVE_NAME.tar.gz" -C dist "$BINARY_NAME" -C "$GITHUB_WORKSPACE" README.md
+      - name: Package Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Compress-Archive -Path "dist/$env:BINARY_NAME", README.md -DestinationPath "dist/$env:ARCHIVE_NAME.zip"
+      - name: Upload build
+        uses: actions/upload-artifact@v7
+        with:
+          name: partite-${{ matrix.target }}
+          path: |
+            dist/*.tar.gz
+            dist/*.zip
+          if-no-files-found: error
+          retention-days: 14

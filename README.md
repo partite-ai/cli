@@ -142,7 +142,42 @@ does not run a local web server.
 
 ## Development
 
-    go build ./... && go test ./...
+    GOWORK=off go build ./... && GOWORK=off go test ./...
     scripts/generate.sh      # regenerate the GraphQL client; needs ../mesh and ../mesh-enterprise
+
+Use `GOWORK=off` when a parent directory has a `go.work` file that does not
+include this module. In PowerShell, set `$env:GOWORK = 'off'` before the Go commands.
+
+### GitHub Actions builds
+
+`.github/workflows/ci.yml` tests and builds these targets on native runners:
+
+| OS | Architecture | Archive |
+|----|--------------|---------|
+| Linux | AMD64 | `partite-linux-amd64.tar.gz` |
+| macOS | Intel AMD64 | `partite-darwin-amd64.tar.gz` |
+| macOS | Apple Silicon ARM64 | `partite-darwin-arm64.tar.gz` |
+| Windows | AMD64 | `partite-windows-amd64.zip` |
+
+The workflow runs on pull requests, pushes to `main`, tags that start with
+`v`, and manual runs. It reads the Go version from `go.mod`. Keep `go.mod`,
+`go.sum`, and `internal/graphql/generated.go` in Git. CI builds the committed
+GraphQL client; it does not run `scripts/generate.sh` or need the server repos.
+
+To check a dependency change, run `GOWORK=off go mod tidy` locally and include
+both module files in the change. CI uses `-mod=readonly` so missing dependency
+updates cause a failure.
+
+Enable GitHub Actions in the repository settings and allow `actions/checkout`,
+`actions/setup-go`, and `actions/upload-artifact`. No custom secrets are needed.
+Open a completed run under **Actions**, then download its **Artifacts**.
+Archives contain the executable and this README. Extract the archive and put
+the executable in a directory on `PATH`. Artifacts are kept for 14 days.
+
+Tag builds set `partite --version` to the tag, such as `v0.1.0`. Other builds
+use `dev-` followed by the first 12 characters of the commit SHA. This workflow
+stores build artifacts; it does not create GitHub Releases, installers, or
+signed binaries. Public distribution can add release assets and platform
+signing in a separate release workflow.
 
 See [CLAUDE.md](CLAUDE.md) for the code layout and conventions.
