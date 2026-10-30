@@ -161,8 +161,9 @@ include this module. In PowerShell, set `$env:GOWORK = 'off'` before the Go comm
 | Windows | AMD64 | `partite-windows-amd64.zip` |
 | Windows | ARM64 | `partite-windows-arm64.zip` |
 
-The workflow runs on pull requests, pushes to `main`, tags that start with
-`v`, and manual runs. It reads the Go version from `go.mod`. Keep `go.mod`,
+The workflow runs on pushed tags that start with `v` and manual requests.
+Branch pushes and pull requests do not trigger it. It reads the Go version
+from `go.mod`. Keep `go.mod`,
 `go.sum`, and `internal/graphql/generated.go` in Git. CI builds the committed
 GraphQL client; it does not run `scripts/generate.sh` or need the server repos.
 
@@ -171,15 +172,57 @@ both module files in the change. CI uses `-mod=readonly` so missing dependency
 updates cause a failure.
 
 Enable GitHub Actions in the repository settings and allow `actions/checkout`,
-`actions/setup-go`, and `actions/upload-artifact`. No custom secrets are needed.
+`actions/setup-go`, `actions/upload-artifact`, and `actions/download-artifact`.
+No custom secrets are needed. The release job uses the built-in `GITHUB_TOKEN`
+with `contents: write`; the build jobs use read-only permissions.
 Open a completed run under **Actions**, then download its **Artifacts**.
 Archives contain the executable and this README. Extract the archive and put
 the executable in a directory on `PATH`. Artifacts are kept for 14 days.
 
 Tag builds set `partite --version` to the tag, such as `v0.1.0`. Other builds
-use `dev-` followed by the first 12 characters of the commit SHA. This workflow
-stores build artifacts; it does not create GitHub Releases, installers, or
-signed binaries. Public distribution can add release assets and platform
-signing in a separate release workflow.
+use `dev-` followed by the first 12 characters of the commit SHA.
+
+### Release downloads
+
+Push a version tag on a commit that includes this workflow to publish a release:
+
+```sh
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+After all six builds pass, the release job uploads the six archives and
+`checksums.txt` to a draft GitHub Release, then publishes it. A failed upload
+leaves the release as a draft; rerunning the workflow can complete it.
+Rerunning an already published release leaves its assets unchanged.
+
+Stable tags become the latest release. Tags with a hyphen, such as
+`v0.2.0-rc.1`, publish prereleases and do not change the latest stable release.
+Push stable tags in version order. Manual runs only upload Actions artifacts.
+
+Release assets do not have the 14-day Actions retention limit. For agents,
+the latest stable Linux ARM64 archive is available at:
+
+```text
+https://github.com/partite-ai/cli/releases/latest/download/partite-linux-arm64.tar.gz
+```
+
+For a fixed version, use:
+
+```text
+https://github.com/partite-ai/cli/releases/download/v0.1.0/partite-linux-arm64.tar.gz
+```
+
+Replace the archive name with any entry in the build table. The same URL
+formats work for `checksums.txt`. These URLs become available after a release
+is published. Public repositories allow anonymous downloads. For a private
+repository, use an authenticated GitHub CLI session:
+
+```sh
+gh release download --repo partite-ai/cli \
+  --pattern partite-linux-arm64.tar.gz --pattern checksums.txt --dir ./download
+```
+
+The workflow does not create installers or sign binaries.
 
 See [CLAUDE.md](CLAUDE.md) for the code layout and conventions.

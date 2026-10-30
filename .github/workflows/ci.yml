@@ -2,9 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
     tags: ['v*']
-  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -89,3 +87,64 @@ jobs:
             dist/*.zip
           if-no-files-found: error
           retention-days: 14
+
+  release:
+    name: Publish release
+    needs: test
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    concurrency:
+      group: release-${{ github.ref }}
+      cancel-in-progress: false
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      RELEASE_TAG: ${{ github.ref_name }}
+    steps:
+      - name: Download build archives
+        uses: actions/download-artifact@v8
+        with:
+          pattern: partite-*
+          merge-multiple: true
+          path: dist
+      - name: Verify archives and write checksums
+        shell: bash
+        working-directory: dist
+        run: |
+          archives=(
+            partite-linux-amd64.tar.gz
+            partite-linux-arm64.tar.gz
+            partite-darwin-amd64.tar.gz
+            partite-darwin-arm64.tar.gz
+            partite-windows-amd64.zip
+            partite-windows-arm64.zip
+          )
+          for archive in "${archives[@]}"; do
+            test -s "$archive"
+          done
+          sha256sum "${archives[@]}" > checksums.txt
+      - name: Publish GitHub Release
+        shell: bash
+        run: |
+          release_flags=(--latest)
+          create_flags=()
+          if [[ "$RELEASE_TAG" == *-* ]]; then
+            release_flags=(--latest=false)
+            create_flags=(--prerelease)
+          fi
+
+          if draft=$(gh release view "$RELEASE_TAG" --json isDraft --jq '.isDraft'); then
+            if [[ "$draft" == "false" ]]; then
+              echo "Release $RELEASE_TAG is already published; leaving its assets unchanged."
+              exit 0
+            fi
+          else
+            gh release create "$RELEASE_TAG" --verify-tag --draft \
+              --title "$RELEASE_TAG" --generate-notes "${create_flags[@]}"
+          fi
+
+          gh release upload "$RELEASE_TAG" dist/*.tar.gz dist/*.zip dist/checksums.txt --clobber
+          gh release edit "$RELEASE_TAG" --draft=false "${release_flags[@]}"
