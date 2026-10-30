@@ -162,46 +162,12 @@ include this module. In PowerShell, set `$env:GOWORK = 'off'` before the Go comm
 | Windows | ARM64 | `partite-windows-arm64.zip` |
 
 The workflow runs on pushed tags that start with `v` and manual requests.
-Branch pushes and pull requests do not trigger it. It reads the Go version
-from `go.mod`. Keep `go.mod`,
-`go.sum`, and `internal/graphql/generated.go` in Git. CI builds the committed
-GraphQL client; it does not run `scripts/generate.sh` or need the server repos.
-
-To check a dependency change, run `GOWORK=off go mod tidy` locally and include
-both module files in the change. CI uses `-mod=readonly` so missing dependency
-updates cause a failure.
-
-Enable GitHub Actions in the repository settings and allow `actions/checkout`,
-`actions/setup-go`, `actions/upload-artifact`, and `actions/download-artifact`.
-No custom secrets are needed. The release job uses the built-in `GITHUB_TOKEN`
-with `contents: write`; the build jobs use read-only permissions.
-Open a completed run under **Actions**, then download its **Artifacts**.
-Archives contain the executable and this README. Extract the archive and put
-the executable in a directory on `PATH`. Artifacts are kept for 14 days.
+Branch pushes and pull requests do not trigger it.
 
 Tag builds set `partite --version` to the tag, such as `v0.1.0`. Other builds
 use `dev-` followed by the first 12 characters of the commit SHA.
 
 ### Release downloads
-
-Push a version tag on a commit that includes this workflow to publish a release:
-
-```sh
-git tag v0.1.0
-git push origin v0.1.0
-```
-
-After all six builds pass, the release job uploads the six archives and
-`checksums.txt` to a draft GitHub Release, then publishes it. A failed upload
-leaves the release as a draft; rerunning the workflow can complete it.
-Rerunning an already published release leaves its assets unchanged.
-
-Stable tags become the latest release. Tags with a hyphen, such as
-`v0.2.0-rc.1`, publish prereleases and do not change the latest stable release.
-Push stable tags in version order. Manual runs only upload Actions artifacts.
-
-Release assets do not have the 14-day Actions retention limit. For agents,
-the latest stable Linux ARM64 archive is available at:
 
 ```text
 https://github.com/partite-ai/cli/releases/latest/download/partite-linux-arm64.tar.gz
