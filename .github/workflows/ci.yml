@@ -27,6 +27,9 @@ jobs:
           - runner: ubuntu-24.04
             target: linux-amd64
             binary: partite
+          - runner: ubuntu-24.04-arm
+            target: linux-arm64
+            binary: partite
           - runner: macos-15-intel
             target: darwin-amd64
             binary: partite
@@ -35,6 +38,9 @@ jobs:
             binary: partite
           - runner: windows-2025
             target: windows-amd64
+            binary: partite.exe
+          - runner: windows-11-arm
+            target: windows-arm64
             binary: partite.exe
     defaults:
       run:

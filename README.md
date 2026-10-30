@@ -155,9 +155,11 @@ include this module. In PowerShell, set `$env:GOWORK = 'off'` before the Go comm
 | OS | Architecture | Archive |
 |----|--------------|---------|
 | Linux | AMD64 | `partite-linux-amd64.tar.gz` |
+| Linux | ARM64 | `partite-linux-arm64.tar.gz` |
 | macOS | Intel AMD64 | `partite-darwin-amd64.tar.gz` |
 | macOS | Apple Silicon ARM64 | `partite-darwin-arm64.tar.gz` |
 | Windows | AMD64 | `partite-windows-amd64.zip` |
+| Windows | ARM64 | `partite-windows-arm64.zip` |
 
 The workflow runs on pull requests, pushes to `main`, tags that start with
 `v`, and manual runs. It reads the Go version from `go.mod`. Keep `go.mod`,
