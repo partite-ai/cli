@@ -191,4 +191,4 @@ gh release download --repo partite-ai/cli \
 
 The workflow does not create installers or sign binaries.
 
-See [CLAUDE.md](CLAUDE.md) for the code layout and conventions.
+See [AGENTS.md](AGENTS.md) for the code layout and conventions.
